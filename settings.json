@@ -9,6 +9,7 @@
     "ask": [
       "Bash(rm *)",
       "Bash(rmdir *)",
+      "Bash(shred *)",
       "Bash(mv *)",
       "Bash(cp -f *)",
       "Bash(cp --force *)",
@@ -24,11 +25,21 @@
       "Bash(git push *)",
       "Bash(git checkout -f*)",
       "Bash(git checkout --force*)",
+      "Bash(git checkout *)",
+      "Bash(git filter-branch *)",
+      "Bash(git merge *)",
+      "Bash(git pull *)",
       "Bash(git rebase *)",
+      "Bash(git restore *)",
+      "Bash(git switch *)",
       "Bash(git branch -D*)",
       "Bash(git branch -f*)",
       "Bash(git stash drop*)",
       "Bash(git tag -d*)",
+      "Bash(git worktree remove *)",
+      "Bash(git submodule deinit *)",
+      "Bash(git reflog expire *)",
+      "Bash(brew *)",
       "Bash(npm uninstall *)",
       "Bash(npm remove *)",
       "Bash(npm ci *)",
@@ -101,7 +112,7 @@
     ],
     "defaultMode": "acceptEdits"
   },
-  "model": "haiku",
+  "model": "sonnet",
   "statusLine": {
     "type": "command",
     "command": "bash ~/.claude/statusline.sh"
