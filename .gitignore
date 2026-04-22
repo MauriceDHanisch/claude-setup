@@ -1,0 +1,22 @@
+# Claude runtime data — not part of the portable config
+backups/
+cache/
+debug/
+downloads/
+file-history/
+history.jsonl
+ide/
+mcp-needs-auth-cache.json
+paste-cache/
+plans/
+plugins/
+projects/
+remote/
+session-env/
+sessions/
+shell-snapshots/
+statsig/
+tasks/
+telemetry/
+todos/
+.credentials.json
