@@ -36,7 +36,7 @@ These guidelines apply to **all workspaces** and interactions.
   - **Commenting**: Use comments according to industry standards. You may use comments during the drafting phase for internal reasoning or step tracking, but you must clean them up before final delivery. Final comments should be minimal, focusing on the "why" rather than the "how," and should follow standard docstring practices.
   - **Best Practices**:
     - Use Type Hinting (`typing`) where helpful.
-    - Use robust error handling (`try/except`).
+    - **Error handling**: Only catch exceptions you can concretely handle. Never silently swallow exceptions. If catching to add context, always re-raise (`raise ... from e`). If catching at a boundary for logging, log then re-raise (`raise`). A bare `except: pass` or catching broadly and continuing as if nothing happened is always wrong — it creates silent bugs that are harder to debug than the original exception.
     - Follow PEP 8 standards.
   - **Performance**: Optimize for speed and memory efficiency (especially for ML/Data tasks).
   - **Git / Commits**:
