@@ -13,6 +13,15 @@ five_h_reset=$(echo "$data" | jq -r '.rate_limits.five_hour.resets_at // empty')
 seven_d=$(echo "$data" | jq -r '.rate_limits.seven_day.used_percentage // empty' | cut -d. -f1)
 seven_d_reset=$(echo "$data" | jq -r '.rate_limits.seven_day.resets_at // empty')
 
+# Cross-platform epoch-to-date helper: epoch_to_date <epoch> <format>
+epoch_to_date() {
+    if [[ "$(uname)" == "Darwin" ]]; then
+        date -r "$1" +"$2" 2>/dev/null
+    else
+        date -d "@$1" +"$2" 2>/dev/null
+    fi
+}
+
 # Colors
 BLUE=$'\e[38;2;140;200;240m'
 BBLUE=$'\e[1;38;2;140;200;240m'
@@ -78,7 +87,7 @@ if [ -n "$seven_d" ] && [ "$seven_d" != "empty" ]; then
     rate_str="${rate_str} ${DGREY}│${RESET} ${WHITE}7d:${RESET} ${BLUE}${seven_d}%${RESET}"
     if [ -n "$seven_d_reset" ] && [ "$seven_d_reset" != "empty" ]; then
         now=$(date +%s)
-        reset_date=$(date -r "$seven_d_reset" +"%a %H:%M" 2>/dev/null || echo "")
+        reset_date=$(epoch_to_date "$seven_d_reset" "%a %H:%M")
         [ -n "$reset_date" ] && rate_str="${rate_str} ${LGREY}(${reset_date})${RESET}"
     fi
 fi
