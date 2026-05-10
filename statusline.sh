@@ -3,11 +3,13 @@
 data=$(cat)
 
 # Parse JSON with jq
-model=$(echo "$data" | jq -r '.model.display_name // "Claude"')
+model=$(echo "$data" | jq -r '.model.display_name // "Claude"' | sed 's/ (.*)//')
 directory=$(echo "$data" | jq -r '.workspace.current_dir // "."' | xargs basename)
 pct=$(echo "$data" | jq -r '.context_window.used_percentage // 0' | cut -d. -f1)
-tokens_in=$(echo "$data" | jq -r '.context_window.current_usage.input_tokens // 0')
-tokens_out=$(echo "$data" | jq -r '.context_window.current_usage.output_tokens // 0')
+window_size=$(echo "$data" | jq -r '.context_window.context_window_size // 0')
+used_tokens=$(echo "$data" | jq -r '(.context_window.total_input_tokens // 0) + (.context_window.total_output_tokens // 0)')
+thinking=$(echo "$data" | jq -r '.thinking.enabled // false')
+effort=$(echo "$data" | jq -r '.effort.level // ""')
 five_h=$(echo "$data" | jq -r '.rate_limits.five_hour.used_percentage // empty' | cut -d. -f1)
 five_h_reset=$(echo "$data" | jq -r '.rate_limits.five_hour.resets_at // empty')
 seven_d=$(echo "$data" | jq -r '.rate_limits.seven_day.used_percentage // empty' | cut -d. -f1)
@@ -36,15 +38,20 @@ branch=$(git branch --show-current 2>/dev/null || echo "")
 branch_str=""
 [ -n "$branch" ] && branch_str=" ${DGREY}🌿${RESET} ${LGREY}${branch}${RESET}"
 
-# Token count
-total=$((tokens_in + tokens_out))
-if [ $total -ge 1000000 ]; then
-    tok=$(printf "%.0fM" "$(echo "$total / 1000000" | bc -l)")
-elif [ $total -ge 1000 ]; then
-    tok=$(printf "%.0fk" "$(echo "$total / 1000" | bc -l)")
-else
-    tok="$total"
-fi
+# Token window: used / total
+format_tokens() {
+    local n=$1
+    if [ "$n" -ge 1000000 ]; then
+        printf "%.1fM" "$(echo "$n / 1000000" | bc -l)"
+    elif [ "$n" -ge 1000 ]; then
+        printf "%.0fk" "$(echo "$n / 1000" | bc -l)"
+    else
+        echo "$n"
+    fi
+}
+
+used_fmt=$(format_tokens "$used_tokens")
+window_fmt=$(format_tokens "$window_size")
 
 # Bar color
 if [ "$pct" -lt 50 ]; then
@@ -92,6 +99,14 @@ if [ -n "$seven_d" ] && [ "$seven_d" != "empty" ]; then
     fi
 fi
 
+# Thinking & effort — appended inside model brackets, non-bold blue
+BLUE_NB=$'\e[38;2;140;200;240m'
+model_suffix=""
+
+after_model=""
+[ "$thinking" = "true" ] && after_model="${after_model} 🧠"
+[ -n "$effort" ] && [ "$effort" != "null" ] && after_model="${after_model} ${WHITE}${effort}${RESET}"
+
 # Output - clean two lines
-echo "${BBLUE}[${model}]${RESET} ${DGREY}📁${RESET} ${WHITE}${directory}${RESET}${branch_str} ${DGREY}·${RESET} ${GREY}${tok} tokens${RESET}"
+echo "${BBLUE}[${model}]${RESET} ${DGREY}│${RESET}${after_model} ${DGREY}│${RESET} ${DGREY}📁${RESET} ${WHITE}${directory}${RESET}${branch_str} ${DGREY}·${RESET} ${GREY}${used_fmt}/${window_fmt}${RESET}"
 echo "${LGREY}[${RESET}${bar_color}${bar_fill}${RESET}${bar_empty}${LGREY}]${RESET} ${bar_color}${pct}%${RESET}${rate_str}"
