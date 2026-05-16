@@ -1,31 +1,28 @@
-# Claude Code Setup
+# Claude Code Setup — discontinued
 
-Personal Claude Code config as a single source of truth across machines.
+> **This repository is no longer maintained.** All configuration has moved to
+> [**MauriceDHanisch/agent-dotfiles**](https://github.com/MauriceDHanisch/agent-dotfiles),
+> which manages Claude, plus shared skills, from a single source of truth.
 
-## Install / Update
+## Why the move
+
+`claude-setup` was Claude-only and copied files into `~/.claude`. The new
+[agent-dotfiles](https://github.com/MauriceDHanisch/agent-dotfiles) repo:
+
+- Manages multiple agents from one repo, with shared skills as the single
+  source of truth — edit a skill once, every agent that consumes it sees the
+  change.
+- Uses symlinks instead of copies, so edits in `~/.claude` propagate back to
+  the repo automatically.
+- Pure-bash installer with no dependencies beyond `git` (no `stow`, no
+  package-manager prompts).
+- Backs up any conflicting local files to `~/.agent-dotfiles-backup/` before
+  linking, and sweeps orphan symlinks on every install.
+
+## Migrating
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/MauriceDHanisch/claude-setup/main/setup.sh | bash
+curl -fsSL https://raw.githubusercontent.com/MauriceDHanisch/agent-dotfiles/main/setup.sh | bash
 ```
 
-Clones the repo to a temp dir, copies config files into `~/.claude`, and deletes the temp clone. Safe to re-run at any time — credentials, sessions, and runtime data are never touched.
-
-## What's Included
-
-- Global coding guidelines (`CLAUDE.md`)
-- Settings & permissions (`settings.json`)
-- Custom commands (`/commit`, `/check`)
-- Statusline (`statusline.sh`)
-
-## Making Changes
-
-Edit files directly in `~/.claude` on your primary machine (it's a git repo), then:
-
-```bash
-cd ~/.claude
-git add -p
-git commit -m "your message"
-git push
-```
-
-Pull to other machines by re-running the install command above.
+That's it — re-run the same command on every machine to stay in sync.
